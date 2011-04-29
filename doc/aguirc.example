@@ -1,0 +1,105 @@
+# This is a sample settings file for A GUI
+# Daniel Nilsson, 011223
+#
+# For boolean options, 0 is false/disabled and 1 is true/enabled.
+
+# Set binpath to your installation directory, or wherever the glim, blastparse and pmEST scripts reside 
+binpath				/home/daniel/work/gui
+
+# Set the path to a temporary directory, writable by the user 
+tmppath				/tmp
+
+# What local search tool to use by default - wu or ncbi?
+blastlocaldefault	 	ncbi
+#blastlocaldefault	 	wu
+
+# Default local blast db path
+
+blastlocaldbdir			/mnt/cube/grando/blastdb
+
+### gandalf ###
+# blastlocaldbdir			/opt/daniel/db/genbank
+### shinji ###
+# blastlocaldbdir			/home/daniel/temp
+
+# Default local blast db
+blastpdefaultdb			nr
+blastndefaultdb			nt
+
+#blastpdefaultdb			nrmockup
+#blastndefaultdb			nrntmockup
+
+# Default blast hit parsing behaviour
+blastpopup			0
+
+# Path to WU-BLAST binaries (optional)
+# blast2path			/usr/remote/blast2
+# shinji
+blast2path			/usr/local/blast2
+
+# Path to WU-BLAST matrices
+blastmatrixdir			/usr/local/blast2/matrix
+
+# Path to NCBI-BLAST binaries (optional)
+#ncbiblastpath			/usr/remote/ncbiBlast21
+ncbiblastpath			/usr/local/ncbiBlast21
+
+# shortest ORF to consider for showing "longest ORFs" etc. 
+shortestorf 24
+
+# Remote blast db
+blastp_db	nr
+# Default blast run options
+blastp_complexity_filter	1
+blastn_complexity_filter	1
+
+# Any extra blast options to pass on
+# extra_blast_options	testme
+
+# Use the built in Testcode algorithm 
+usebuiltintestcode		1
+
+# If usebuiltintestcode == 0, please set the path to your testcode binary
+testcodepath			/usr/remote/bin
+
+# Path to glimmer (tested with Glimmer 2.10; fixes are available for some older Glimmer versions)
+glimmer2path 			/home/daniel/install/Glimmer2.10
+# Name of the glimmer hit parser script. Don't change this unless you know what you are doing!
+glimbin				glim.pl
+
+# A path to a Glimmer directory with the binary modified to accept non-standard genetic code
+glimmer2altstartpath		/home/daniel/install/Glimmer2.0-altstart
+glimaltstartbin			glimAltStart.pl
+
+# Default Glimmer model file
+glimdefaultmodel		/home/daniel/test/glimmer/gb_tc_CDS.model
+
+# Default ESTORF EST FASTAfile
+estorfdefaultestfile		/opt/daniel/db/genbank/all_genbank_est_010409.fasta
+
+# Settings for the strand cleaning heuristics
+heur_prog_orf			1
+heur_prog_polypy		1
+heur_prog_testcode		1
+
+# Show last open files menu option
+uselastfiles			1
+# Use the following file to store THIS USERS lastfiles-file (defaults to /home/`whoami`/.aguilastfiles
+lastfilesfile			/home/daniel/.aguilastfiles
+# Number of last open files to remember
+nolastfiles			6
+
+# Program startup display levels
+display_genbankcds_level	1
+display_glimmer2_level		1
+display_testcode_level		1
+display_EST_level		0
+display_merge_level		0
+display_manual_level		0
+display_ESTORF_level		0
+display_ORF_level		1
+display_ST_level		1
+display_polypy_level		1
+display_blast_level		0
+display_regexp_level		0
+display_gff_level		0

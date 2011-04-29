@@ -1,0 +1,703 @@
+
+A GUI presents simplistic genomic sequence annotation visualisation,
+as well as a centralized graphical user interface front-end to a few
+molecular genetics softwares.
+
+This guide first presents some concepts that the program uses, and then
+proceeds with a detailed walk-through of the entire user
+interface. Third, file formats understood by the program are
+discussed, and finally some implementation issues are discussed. The
+reader is encouraged to read the first section, then browse the second
+and third sections while running the program and testing mentioned
+options that seem interesting.
+
+% tutorial?
+
+\section{Concepts}
+
+\subsection{Worksheet}
+Typically, an annotation session in A GUI begins with the user
+deciding to create a new worksheet.  A sequence to annotate is
+imported from some major sequence format. The user then opts to run a
+few molecular genetics oriented programs from the central interface,
+or to load results from previous, often time-consuming, runs with
+these programs. Either way, the sequence is tagged with data,
+typically predictions regarding the nature of certain sub-stretches.
+These are displayed graphically on the worksheet as colored lines,
+arrows and boxes.
+
+\subsection{Annotations}
+An annotation is a set of informative data connected to a certain
+stretch of a sequence.  Annotations can concern oriented sequences,
+that is pertaining to a certain reading frame, e g protein coding
+sequences, or unoriented subsequences (e g cDNA similarity of a
+subsequence discovered by BLAST).  Annotations are visualized by boxes
+of different color. An oriented annotation takes the shape of an
+arrow, pointing in it's 5'-3' direction, whereas an unoriented
+sequence is shown as a simple box.
+
+\subsection{Annotation frame}
+Each annotation has a frame property. Its sign represents the
+orientation - a 5'-3' oriented annotation has a positive framedness,
+and a reverse strand annotation has a negative framedness. Protein
+type annotations have an additional integeger, indicating their
+translational frame. +1 annotations start on the forward inframe
+codons (nucleotide trimers), the +2 and +3 annotations on the codons
+offset by one resp. two from the first base in the sequence. The
+reverse strand codons are counted from the last base in the sequence,
+with a -1 for the reverse-strand inframe annotations.
+
+\subsection{Annotation levels}
+A box or arrow representing an annotation of a certain type is shown
+parallell to the sequence at a distance governed by the annotation
+type and the framedness of the annotation. Protein type of annotations
+are shown according to their framedness, one level for each of the six
+frames; the three forward frames above the sequence, and the three
+reverse frames below the sequence level. Some annotations occupy fewer
+levels, and some more\footnote{A polypyrimidine stretch has 2 levels,
+whereas the EST-hits currently fill up 10 levels. The Longest ORF and
+Start and Stop annotations actually share the same six levels.}. The
+number of levels occupied can be adjusted by the user for non-framed
+annotation types.
+
+A GUI is capable of displaying quite a few different types of
+annotations. It is therfore possible to hide certain levels to save
+horisontal space, or to make the display look less confusing.  See
+\ref{sec:GUIviewAnnotationlevels} for more details.
+
+\subsection{Zoom levels}
+A GUI supports four different predetermined levels of worksheet
+magnification, and a user adjustabe zoom factor. From the main view
+menu, the zoom level can be altered between sequence, normal, overview
+and birdseye.
+
+The normal view provides a reasonable compromise between overview and
+detail; the distance of one pixel on screen corresponds to one bp of
+sequence. This is the default zoom level that the program assumes upon
+startup of a new session.
+
+In sequence view the actual DNA sequence is visible as one-letter
+abbreviations of nucleotide names, and for protein type of annotations,
+a suggested translation is presented.
+
+\subsection{Graph view}
+Some scalar sequence properties can be visualized in a plot window
+directly below the sequence. The coordinate system has an x-axis in
+the same scale as the sequence view, and a normalized y-scale. The
+maximum possible value of each property is displayed as 1, and all
+other as real fractions $0<y<1$.
+
+Currently, the graph view is unavailable at the sequence zoom level,
+but this will be subject to change in later versions. Graph settings
+are though retained when in sequence zoom mode, so that the selected
+graphs reappear whenever the user returns to a normal zoom level.
+
+\subsection{Merging}
+Often it is desirable to work on not only several different kinds of
+annotation types, but also on the agreement of such. The GUI provides
+an automated procedure for combining matching and overlapping
+annotations for simplification of the annotation procedure. The new,
+merged annotations can be exported to other programs (currently NCBI
+ASN.1 aware programs, such as Sequin).
+
+\subsection{Applying changes}
+In dialog windows that have Ok, Apply and Cancel buttons, no actual
+changes are effected until the Apply or Ok button is pressed. This
+allows you to fill in several choices in a window before actually
+applying them. Pressing Ok or Cancel both close the dialog window, but
+Cancel ignores any changes made in the dialog since last pressing Ok
+or Apply.
+
+\subsection{Selection}
+An annotation can be selected. This is indicated by its corresponding box or 
+arrow being displayed in a shaded fashion. Some actions invoked from the menu can 
+apply directly to the selected annotation.
+
+\section{Interface}
+The main window initially displays three major features; the main
+canvas, the user menu and the textual information display as shown in
+figure \ref{fig:GUIgen}.
+
+% screenshot figure...
+\begin{figure}[htbp]
+	\begin{center}
+	\scalebox{.5}{
+		\epsfig{file=GUIgen.eps}
+	}
+	\end{center}
+\caption{The main window showing the main canvas split into an annotation view and a graph display, the user menu on top and the textual information display at the bottom.}
+\label{fig:GUIgen}
+\end{figure}
+
+In general, dialogs and entry boxes will allow you to try almost any
+values/combinations, though the results of undocumented combinations
+might be unexpected. The program is intended for decision support, which implies
+a sentient user, and thus input material is uncritically accepted.
+
+Try any features you like, but remember to save before trying, and please
+do notify the author of any interesting methodologies that do not work.
+
+There are some rudimentary saftey features on major operations, such
+as closing a worksheet, but the algorithm for detecting changes since
+last save is not thoroughly tested. The moral: if you want to keep
+something, save it - don't hit close and expect to get a save
+window. Still, if you forget to save, in many situations you will get
+a friendly reminder.
+
+\subsection{The main canvas}
+\subsubsection{Obtaining information about an annotation}
+
+Pointing to an annotation and clicking it using \emph{mouse button 1}
+(typically the left-most, for a right-handed user) selects an
+annotation for use in combination with some menu alternatives
+(Annotation - edit and remove; see the respective sections for further
+information on how to use these). Left-clicking an annotation also
+brings up annotation information on the controlling terminal. To see
+these in a graphical window instead; use Annotation-edit.
+
+Pointing to an annotation and clicking with \emph{mouse button 2}
+(typically a middle mouse button click) displays extended information
+about the annotation on the controlling terminal. This includes among
+other useful data, an amino-acid translation of the annotation if it
+is of protein-type (indicated by a directional arrow box).
+
+Clicking an annotation using \emph{mouse button 3} (right clicking it
+in the default configuration of most operating systems) selects the
+annotation and displays a pop-up menu, starting with the name of the
+annotation, if set. The qblast options initate a query to NCBI qblast
+(NCBI blastn/blastp/blastx 2 at the NCBI server with default
+options). Progress is monitored on the controlling terminal. When NCBI
+has finished processing the query, the similarity search results are
+presented in a list box with the most significant hits, if any,
+first. The qblast results dialog offers you to select one or more of
+the hits to append to the query annotations note text. Doing so
+automatically invokes the Annotation-edit dialog for the query
+sequence, where the obtained hits can be edited to suit the annotators
+preferences. Clicking the Display alignment button will show the
+alignments returned from NCBI for the hits selected in the list on the
+controlling terminal.  The Add as blasthits button adds the selected
+hits as blast-type annotations to the sheet. The returned alignments
+are kept as notes attatched to the blast type annotations.
+
+The reports to the controlling terminal are in most cases accompanied
+by an abbreviated report on the textual information display in the
+main window that suffices for navigating the annotation data.
+
+\subsection{File menu}
+The file menu contatins actions for disk access involving the entire worksheet. 
+
+\subsubsection{New}
+Invoking the new alternative creates a new worksheet and automatically
+brings up the sequence import dialog. Select a FASTA format file for
+sequence import. If a multi-entry FASTA file is selected, a listbox
+for selecting the one to import appears.
+
+Selecting File-new with a worksheet already open presents the user
+with a safety dialog promting for verification. Opening a new
+worksheet discards the previous one, and can cause loss of any unsaved
+work.
+
+\subsubsection{Load}
+File-load shows a file selection window, where the user can select a
+worksheet for loading. This closes any currently open sequence, but in
+case the currently open worksheet has been modified since last save, a
+saftey dialog appears, asking the user whether to save first or not.
+
+\subsubsection{Open Genbank}
+
+The ``open genbank'' alternative will pop up a file selection window,
+where a genbank file can be selected. Only the sequence data and
+``CDS'' - coding sequence annotations will currently be imported. This
+functionality could be rapidly extended upon request.
+
+\subsubsection{Save and Save As}
+
+File-save saves the currently open worksheet to disk. If the worksheet
+has not previously been saved or loaded, the saveAs dialog is invoked
+instead.
+
+File-saveAs queries the user for a file to save the current worksheet
+to. It is customary, though not at all necessary, to name worksheet
+with a ``.gws'' extension.
+
+Note that program internal states, such as plots, are not saved - only
+sequence data and annotations.
+
+\subsubsection{Export}
+
+File-export attempts to convert the current Merged annotations to an
+NCBI ASN.1 complying format, readable by i e the NCBI sequence
+submission program Sequin. To export a certain kind of annotation, simply use
+``merge'' to convert it to an exportable annotation.
+
+\subsubsection{Open recent}
+
+The open recent tab contains recently opened worksheet (gws) and
+genbank files.  Selecting one will open that particular file. The
+number of recent files on the list can be set by an option in an rc
+file.
+
+\subsubsection{Print}
+
+The print option allows a postscript dump of the canvas currently in
+view to a file. This file can then be sent to a printing device, using
+a command such as ``lpr'' or an operating system dependent equivalent.
+
+\subsubsection{Close}
+Closing the worksheet when unsaved data is present promts the user
+with a verification dialog. Checking for data modification is not a
+prime concern of the program - the user is considered sentient - so
+saving work before closing is a good saftey precaution.
+
+\subsection{View menu}
+\subsubsection{Zoom}
+There are currently four zoomlevels; sequence, normal, overview and
+birdseye. The most notable difference is the display of the actual
+nucleic acid and amino acid sequences at the most detailed level, the
+sequence level, as shown in figure \ref{fig:GUIgenZoomseq}, and the
+inability to display graphs at this zoomlevel.
+
+\begin{figure}[htbp]
+	\begin{center}
+	\scalebox{.5}{
+		\epsfig{file=GUIgenZoomseq.eps}
+	}
+	\end{center}
+\caption{The sequence zoomlevel displays the actual nucleotide and amino acid sequences.}
+\label{fig:GUIgenZoomseq}
+\end{figure}
+
+\subsubsection{Annotation levels}
+\label{sec:GUIviewAnnotationlevels}
+
+Each of annotation is drawn at a predetermined annotation level in the
+main window.  The levels can be seen in the main window as represented
+by the faint color guides.  Annotation types that use all six
+readingframes occupy three levels on each side of the central,
+sequence display. Some annotation types generate many results for each
+sequence stretch - e g homology search results - and hence use more
+levels. Annotations that are of a non-translated type typically
+require - and use - only one reading frame (e g poly pryimidine
+tracts).
+
+The annotation levels can be folded away to save horizontal space, and
+generally un-clutter the display. Select the view-annotationLevel menu
+option to access the dialog controlling annotation levels. A set of
+annotation levels for a certain type of annotation can be dismissed
+from view by deselecting its corresponding checkbox. For non-bioframed
+annotation types, the number of levels can be adjusted by filling in
+the required number of levels (on each strand) in the corresponding
+text input.
+
+\subsubsection{Graph}
+
+Invoking the View-graph menu brings up the graph settings window, as
+shown in figure \ref{fig:GUIgraphset}. A list of checkboxes inform on
+which properties are active for plotting. Checking or unchecking any
+of the boxes, followed by pressing Ok or Apply replots the graph
+display accordingly.
+
+% screenshot figure...
+\begin{figure}[htbp]
+	\begin{center}
+	\scalebox{.5}{
+		\epsfig{file=GUIgraphset.eps}
+	}
+	\end{center}
+\caption{The graph settings window. Graph settings are remembered even when the graph is hidden, e g during sequence zoom mode.}
+\label{fig:GUIgraphset}
+\end{figure}
+
+By default, all calculations are made using non-overlapping
+windows. This is fast, and often desireable. However, a sliding window
+option is also available.
+
+Actual values on an interval are accurate exactly in the center of
+each calculation window. This means that there will be an initial and
+final, value-free stretch, each of a half window length.
+
+H/2 is (half) the Shannon-Weaver source entropy measure 
+\begin{displaymath}
+H=-\sum_{i = \{A,T,G,C\}} \mathrm{P_i}\log\mathrm{P_i}.
+\end{displaymath}
+The GC frequency skew is calculated as $\frac{P_G-P_C}{P_G+P_C}$, and the AT skew analogously
+$\frac{P_A-P_T}{P_A+P_T}$. The display shows normalized cumulative skews, i e the sum of the frequency skew
+up to that point, normalised so that the maximum or minimum, as applicable, is shown at 1 or 0.
+The other measures are simply summed base probabilities.
+
+The window size can be varied between 1 and the length of the
+sequence. Long windows computes faster, and more accurately in a
+statistical sense, but naturally give less resolution.  Note that too
+short window sizes will produce errors - several of the measures
+currently fail when base probabilities involved drop to zero. This may
+be considered a bug in the program, and will be corrected, but do
+consider that a statistical measure would require a substantial
+material to be valid.
+
+\subsubsection{Legend}
+The legend window, figure \ref{fig:GUIlegend}, displays examples of the visual apperance
+\footnote{color and shape} of different annotation types and graph
+curve types.
+% screenshot figure...
+\begin{figure}[htbp]
+	\begin{center}
+	\scalebox{.5}{
+		\epsfig{file=GUIlegend.eps}
+	}
+	\end{center}
+\caption{The legend window describes the default colors of all annotations. User modified colors are not shown.}
+\label{fig:GUIlegend}
+\end{figure}
+
+\subsection{Annotation menu}
+
+\subsubsection{Add}
+Annotation-add brings up a list box dialog showing the annotation
+types a user can add. It allows import of annotations from previously
+run programs (Currently Glimmer2 and EST ORF), some simple pattern
+matching (display of all open reading frames as well as start and stop
+codons) and a completely user defined annotation.
+
+Selecting an import type of annotation brings up a file import dialog
+for the requested type. Note that you could produce such files from
+the Run menu. This might be useful if you wish to experiment with
+different removal methods and computation times are long, or simply
+annoying.
+
+The ORF finding routine opts for the longest possible ORF
+\footnote{the subsequence starting with a valid start codon, and
+ending with a valid stop codon} when there are several alternative
+ones overlapping in one reading frame. It does not consider overlaps
+beteen frames to be hindering.
+
+Adding manual annotation provides the means to keep notes on sequence
+features not supported by the automatic programs. Selecting manual
+annotation brings up a dialog window for entering sequence
+coordinates, selecting orientation (5'-3', 3'-5' or none).
+
+\subsubsection{Edit}
+Selecting an annotation (by clicking it with mouse button 1) and
+chosing Annotation-edit displays the annotation edit window, figure \ref{fig:GUIedit}, where the
+user can view data provided by the annotator program, and add notes to
+the annotation. The notes are available for later export to other
+annotation formats, but can also be used as a personal note book for
+the annotator.
+
+% screenshot figure...
+\begin{figure}[htbp]
+	\begin{center}
+	\scalebox{.5}{
+		\epsfig{file=GUIedit.eps}
+	}
+	\end{center}
+\caption{The Edit window allows editing of an annotation. The annotation name will be displayed as a text inside the annotation box on the main canvas.}
+\label{fig:GUIedit}
+\end{figure}
+
+\subsubsection{Merge}
+
+The merge annotations dialog, figure \ref{fig:GUImerge}, allows the user to select sets of
+annotations, the combination of which will be merged into a new set of
+annotations.
+
+% screenshot figure...
+\begin{figure}[htbp]
+	\begin{center}
+	\scalebox{.5}{
+		\epsfig{file=GUImerge.eps}
+	}
+	\end{center}
+\caption{The annotations merge window. The resulting annotations of the ``merged'' type can be exported to other programs.}
+\label{fig:GUImerge}
+\end{figure}
+
+One or more types of annotations are selected for merging, and
+combined using any of three methods:
+\begin{itemize} 
+\item{\textit{or}} selects any annotations made with the selected methods for
+merging; annotations of identical start and stop location are though
+only included once.
+\item{\textit{and exactly}} any annotations with start and stop location
+matching exactly with at least one other annotation of each checked
+annotation type will be merged as a new annotation. As before, no
+doublets with equal start and stop locations are created.
+\item{\textit{and overlap pair}} any annotations sharing a sequence stretch
+longer than the specified overlap length will be considered overlapping. 
+Any annotations in such an overlap pair of differing, checked types will be
+merged as new annotations.
+\end{itemize}
+
+This would typically be used in chosing what annotations to export.
+After calculation and import of a large number of annotations and
+removal of annotations that fail to fulfill certain criteria, a
+combination of annotations thus selected can be made. For instance,
+one might want to select all Open Reading Frames that are predicted as
+coding by Glimmer, and also share sequence similarity with a cDNA fragment.
+
+The naming convention selections are shown (shaded) in this dialog,
+but are at the time of writing not fully implemented.
+
+\subsubsection{Remove}
+Choose Annotation-Remove to manually remove one or a few annotations by
+means of pointing and clicking. Data on the selected annotation
+appear in the remove window, and pressing Apply or Ok removes the
+selected annotation. As long as the remove window remains open,
+clicking another anotation selects it, and thus shows its data in the
+remove window.
+
+\subsubsection{Remove All}
+
+The remove all window, figure \ref{fig:GUIremallglim}, allows the user to automatically remove all
+annotations that match (or rather don't match) certain criteria. The
+dialog is divided into several notebook pages, with one tab (and page)
+for each type of annotation. Choices made on the tabs are remembered
+when flipping between pages, so multiple types of annotaions may be
+removed simultaneously. Each tab sport an All check button, that will
+cause all annotations of the corresponding annotation type to be
+deleted. Please note that temporary hiding of an annotation can be accomplished instead by
+using the View - Annotation levels menu option.
+A common choice is the removal of annotations shorter than a certain length. Note that the
+check button must be checked, and the entry box filled in with the
+desired shortest allowed length. Some annotation types also have more
+elaborate filtering methods.
+
+% screenshot figure...
+\begin{figure}[htbp]
+	\begin{center}
+	\scalebox{.5}{
+		\epsfig{file=GUIremallglim.eps}
+	}
+	\end{center}
+\caption{The Remove All window allows some filtering of annotations based on length, score values etc. This can be used to enforce quantitative annotation criteria, or to quickly unclutter a genomic region and get a broad picture of what is in there.}
+\label{fig:GUIremallglim}
+\end{figure}
+
+\subsection{Run}
+
+Invoking the run menu opens a window (see figure \ref{fig:GUIrun}) for interaction with other programs. 
+If the current sequence is selected as target in any of the computations possible,
+the results are immediately imported and visualised. 
+Batch calculations can be set up by choosing a multiple entries FASTA file for 
+calculation target.
+
+% screenshot figure...
+\begin{figure}[htbp]
+	\begin{center}
+	\scalebox{.5}{
+		\epsfig{file=GUIrun.eps}
+	}
+	\end{center}
+\caption{The Run Window from which external programs can be run. Note that some of the routines can be run for single annotations by use of the context sensitive (right-click) menu.}
+\label{fig:GUIrun}
+\end{figure}
+
+Currently, a program for tagging ORFs similar to cDNA sequences in a
+local databases by the author, and Glimmer 2, by Salzberg
+et.al. are supported.
+
+\subsubsection{Glimmer 2}
+
+The Glimmer 2 tab presents the user with a graphical interface where
+the calculation target sequence, ICM and some simple options can be
+changed. Disabling the use of alternative start and stop codons
+requires a separately complied version of Glimmer 2. The changes
+required to the source code can be obtained from the author, but could
+also easily be found by examining the Glimmer 2 manual or source code.
+
+\subsubsection{BLAST}
+
+From the BLAST tab, blast searches on the entire sequence or another
+sequence file can be performed. Select the Current sequence checkbox
+for Subject sequence to run on the currently loaded sequence. For
+database to run against, select (the FASTA sequence file for) a
+previously constructed (indexed) BLAST database, a FASTA file, or a db
+name on the default remote BLAST server. If a remote db is selected,
+the search will be made using the default remote BLAST server
+(www.ncbi.nlm.nih.gov) rather than local tools. Select the type of
+search wanted; blastx for six-frame translated nucleotide sequence vs
+a protein db or blastn for nucleotide sequence vs a nucleotide db.
+
+Selecting the option ``Result in a huge hitlist'' will return the
+blast-hits as one (possibly long) list of hits, in which the user can
+select what hits she wishes to retain as annotations. This behaviour
+can be set as default for all BLAST searches in the A GUI
+configuration file (set ``blastpopup'' to 1). Otherwise, once the
+search is finished, the main view will temporarily display only the
+blast hits, and allow the user to remove the hits that are considered
+uninteresting. Once the user is satisfied with this, applying the
+changes in the blast result window will revert the main display to its
+normal state. If the operation is canceled, the main window will also
+revert, but none of the new blast hits will be added as annotations.
+
+BLAST searches of individual subsequences can be performed by invoking
+the context-sensitive menu (right-click menu) for an annotation
+covering the interesting subsequence and selecting the apropriate
+blast option. The default databases set in the A GUI configuration
+file will be used.
+
+The alignments of BLAST hits will be retained as comments to the BLAST
+annotations, and can be viewed as such at any point.
+
+\subsubsection{Testcode}
+
+The Testcode tab allows the running of an external Testcode application, and
+optionally automatically importing the results as Testcode type annotations.
+Note that if the ``usebuiltintestcode'' option is set to 1 in an aguirc file, the
+Add-Testcode menu option will perform the Testcode algorithm on the current sequence.
+
+\subsubsection{EST ORF}
+
+The ESTORF tagging program package by the author uses BLAST 
+% \cite{Altschul90} 
+to find regions in the genomic sequence similar to any of those in a cDNA library.
+Run either on the current sequence, or on a (multiple entries) FASTA file. The cDNA library is
+simply a FASTA file of sequences. Hit sequcens are classified into three categories, depending on 
+P value, exact match fraction and hit length.
+
+Since the current implementation assumes a large genomic sequence, and
+a small cDNA library, the user is recommended to batch run all
+sequenences, and then import them using the Annotation-Add menu
+alternative. This saves considerable time in the annotation work.
+
+\section{File formats}
+
+\subsection{FASTA}
+Sequence data can be imported from FASTA type files. In a FASTA format
+file, a new sequence starts with a $>$ on a new line, followed by the
+name of the sequence. Then, after a newline the actual sequence
+follows, until EOF is detected, or a new sequence starts (with a new
+$>$).
+
+%\subsection{GENBANK(?)}
+%destroying import?/export?
+
+\subsection{A GUI ``gws''}
+An ASN.1-like format for disk storage of an annotation session,
+designed by the author.  Complete import and export is availablele
+from the load/save File menu choices.
+
+\subsection{NCBI ASN.1 (Sequin)}
+The file format commonly used for representing biological data within
+NCBI, an ASN.1 standards format, is implemented for export of
+sequences and annotations to NCBI. Most notably, this enables direct
+import of finished or near-finished annotations into Sequin 
+, the NCBI automatic submission program for final pre-submission
+editing.
+%(\cite{sequin})
+
+Since Sequin is capable of exporting both sequence data and
+annotations into several other data formats common in bioinformatical
+handling, the inclusion of such export options into A GUI has been
+postponed.
+
+%destroying import?
+
+\subsection{GLIM}
+Simple file format for handling Glimmer prediction results designed by
+the author.  Data from a Glim file can be imported as Glimmer hits by
+choice of Annotation-add and then glimmer2 from the annotation
+addition dialog.
+
+Glim files can be created from the run dialog.
+
+\subsection{PMEST}
+Simple file format for describing EST tagging of ORFs designed by the
+author.  Data from a PMEST file can be imported as EST hits and EST
+ORF tagged ORFs. Select the Annotation-add menu alternative and chose
+any of these from the list. A file selection window now appears for
+selection of a PMEST file.  Indirectly, PMEST files can be created by
+chosing ESTORF (from the Run menu) and selecting to run it on a file
+instead of on the current sequence. This creates a new PMEST file with
+results from the run.
+
+\section{Implementation specific issues}
+This section contains information that can be regarded as more than
+you wanted to know about the program. If you have a question about
+some weird data that you see within the program, you might find hints
+here, but for the general user this should be information of little or
+no interest.
+
+\subsection{Annotation ids}
+Every graphically displayed annotation has an annotation id given to
+it upon creation. This id is kept for internal reference, and in the
+current, early version of the program, this information is visible in
+some cases. The id of any annotation should be regarded as subject to
+change after removal of any other annotation, and after loading an old
+worksheet file. The author has used it extensively during
+developement, but after the introduction of unique annotation names,
+it pretty much lost its useability to the ordinary user. Do not rely
+on it beeing visible outside the computer memory in subsequent
+versions.
+
+\subsection{Potential improvements to the GUI}
+\begin{itemize}
+        \item{A more user-friendly export system} 	        
+
+	        It should be possible to ``export'' any kind of
+	        annotation, not just the ``merged'' type. The current
+	        workaround of ``merging'' anything is somewaht tedious
+	        and unintuitive. Annotation would probably flow better
+	        if the annotator was more aware of what goes into the
+	        exported annotation.
+
+
+	\item{Smarter removal routines.}
+
+		Heuristics for annotation removal (and/or merging) can
+		be extended considerably. Such automatised choices
+		would clearly be interesting from a users point of
+		view, but will not neccessarily perform very well on
+		novel sequence data.
+
+		Merging or deleting deletions based on graph properties
+		might be an interesting feature in that case. It would 
+		certainly make the introduction and testing of scalar
+		measures of coding potential easy indeed.
+
+
+	\item{C/C++ implementation for some more speed.}
+
+		Porting the program to a c/c++ platform would give a
+		considerable boost to performance, especially to the
+		computational parts of the program. The time required
+		to implement a program in c is though considerably
+		larger than for perl. Note that the ``competition''
+		uses Java-platforms, that can be just as slow as perl,
+		in the authors humble opinion.
+
+	\item{A faster ``small-scenario'' EST ORF routine.} 
+		The EST ORF tagging program is currently optimised for
+		running an intermediate size EST db against a large
+		ammount of sequence. The typical use from within the
+		GUI is rather a run with a short stretch of sequence
+		against an intermediate size EST db.
+
+		It would probably be useful to engage a repeat masking
+		routine before  matching ESTs to the genomic sequence,
+		given similarities due to repeat elements present in e
+		g the  UTR  regions. Very  simple  repeats are already
+		taken care of by low entropy filering, but more
+		complicated elements would probably have to be located
+		on forehand and entered into a database.
+
+
+	\item{Graphical apperance and better support for long sessions.}
+		
+		The graphical apperance, especially with lots of
+		annotations to a long sequence can be somewhat
+		confusing. Shrinking arrows to be thinner could be one
+		possibility, as could a vertical scroll bar.
+
+		After a long session, typically a lot of forgotten
+		windows fill up the screen, and rare bugs might be
+		discovered. This is partly due to the program beeing
+		basically a simlpe visualisation tool grown bottom-up,
+		but less compromisingly since the developement process
+		has mostly been carried out by adding features, then
+		briefly running the program to test that these
+		features actually work. The introduction of more 
+		users in the loop will rapidly change this matter.
+
+
+
+\end{itemize}

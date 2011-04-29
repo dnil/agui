@@ -1,0 +1,186 @@
+COPYRIGHT NOTICE
+
+(c)2000-2003 All rights are reserved by the author (Daniel Nilsson) of the A GUI program.
+
+The program is provided as-is, without any claims of accuracy or support. The author will
+not be held liable for any damage, mental, reputational or otherwise, caused by using the program.
+You are free to use the program in your non-profit research organisation, provided that you cite the article 
+describing the program in any publications where the program has been used to produce or curate the data.
+
+On a personal note, I enjoy working with open software, and if you have interest in developing the 
+program further I will certainly consider releasing the copyright.
+
+030611
+
+Daniel Nilsson (daniel.nilsson@cgb.ki.se)
+Center for Genomics and Bioinformatics
+Karolinska institutet
+
+--
+
+INSTALLING A GUI
+
+Thank you for chosing A GUI for your genome project. The program has only
+seen limited portability testing and use outside our lab to date, so
+feedback will be warmly appreciated. Don't let this discourage you -
+once set up, A GUI is a useful tool for genome analysis and
+annotation.
+
+If the program is used in the production and analysis of data published in a 
+scientific journal, please cite
+
+D Nilsson and B Andersson, "A Graphical User Interface for Parasite Genome Annotation", Computer
+Methods and Programs in Biomedicine", 2002, in press
+
+* This document
+
+This document will outline the installation procedure for A
+GUI. First, how to resolve dependencies and install optional external
+software is described. Instructions for the program installation will
+then be provided. Thirdly, a section on site specific configuration
+and customization shows how to adjust the the program to your needs.
+Lastly, a word on upgrading from previous versions.
+
+For detailed user instructions, please refer to the users guide
+(userguide.ps / userguide.pdf). For details on the program and
+algorithms used, please refer to D Nilsson and B Andersson, "A
+Graphical User Interface for Parasite Genome Annotation", Computer
+Methods and Programs in Biomedicine (available as an electronic
+pre-print).
+
+* Dependencies
+
+A GUI is dependent on a perl interpreter. perl version >= 5.006 is
+known to be sufficient.  Furthermore, the perlTk modules by Nick-Ing
+Simmons are required, as are some bioperl modules.  The gui is known
+to work with perlTk Tk800.023, and bioperl 1.2.1.
+		
+I e you could use
+
+perl -MCPAN -e shell
+cpan> install NI-S/Tk804.0_24.tar.gz
+cpan> install B/BI/BIRNEY/bioperl-1.2.1.tar.gz
+
+to install the required modules, or download and install them from other sources.
+
+Some other programs can be invoked by A GUI and must be installed separately. 
+
+- Glimmer
+
+Glimmer2 (Steven Salzberg, TIGR)
+
+As of early version 2, there was only compile-time 
+
+- BLAST
+
+NCBI BLAST (http://www.ncbi.nih.gov/)
+WU-BLAST (ftp://blast.wustl.edu/blast/executables)
+
+Default paths to local databases can be set in the rc file.
+
+The default remote blast server is the NCBI qblast server. This could
+be changed, but currently requires modification of the server adress
+($remoteHostName) in GuiIO.pm.  If a different queuing format is used
+by your favourite web blast server, please contact the program author
+for detailed instructions on changing the queuing procedure.
+
+* Installing the program
+
+Extract the distribution archive to some suitable location. 
+
+cd /usr/local/
+tar xzf agui-030611.tgz
+
+The created directory will be referred to as the "installation directory".
+
+Two new modules are included with the program (GuiIO.pm and
+GuiAnnotator.pm) and must *either* be linked into an apropriate
+location in your perl library search path *or* you could modify your
+perl include path list (@INC) to include also the installation
+directory. Other options are to set the path to the modules in the
+gui.pl file: change the line
+
+	$sheet{pathToGuiIO} = '/usr/remote/bin'; 
+
+to point instead to the installation directory, or add a -I
+<installdir> to the end of the very first line of the program so that
+it reads
+
+	#!/usr/bin/perl -w -I <installdir>
+
+* Configuration
+
+- Global settings
+
+Configuration of the A GUI program is done by means of a resource
+file, aguirc.  The default files looked for by the program are
+"/usr/remote/etc/aguirc" and "/home/`whoami`/.aguirc".  The former will be called
+the global configuration file, and sets a global baseline of
+preferences. A user can override any setting in the global
+configuration by altering her local file.
+
+The default name and location of the resource files can be changed in
+the gui.pl file by changing the default value of the variable
+$prefs_file.
+
+The resource file is in an option-value format, with whitespaces as
+separators and a new line for each option. Comments can be given by
+adding a # at the beginning of a comment line.
+
+A sample aguirc file is included (aguirc.example) in the package, and
+should be modified to reflect the local system setup.  Of particular
+notice are paths to external binaries (glimmer2, WU-Blast2, NCBI
+Blast), where the WU-Blast matrix directory is located, default db
+paths (for blast and EST alignments), and the default local blast
+program to use (option "blastlocaldefault" can be set to either "wu"
+or "ncbi"). The "blastpopup" option controls the way BLAST search 
+results are presented to the user. See the users manual for more 
+information on this.
+
+The option "tmppath" should be set to a directory writable to the user
+(or all intended A GUI users for the global configuration file). The
+option "binpath" should be set to the full path of the installation
+directory.
+
+If the option "uselastfiles" is set true (1), a "last opened files" option
+will appear in the A GUI file menu.  A separate file for storing this
+list between sessions should be set for each user, using the
+"lastfilesfile" option.  The number of old filenames to store can be
+set using the "nolastfiles" option.
+
+See the included aguirc.example file for more information.
+
+- Per user configuration
+
+The individual user can have an rc file of exactly the same format as
+the global one. The default individual settings file is one named
+.aguirc directly in the users home directory.  Any option set here
+will override the global setting. 
+
+For the "last opened files" menu to work well, all users need separate
+files to store old filenames in.  A separate file for storing the old
+files list between sessions should be set for each user, using the
+"lastfilesfile" option.
+
+What annotation "levels" (all features of a certain type) to show at
+program startup can be set in the resource file. Simply set the option
+"display_type_level", with the word type replaced by the program
+internal name for that annotation, to 1 to show it and 0 to supress
+it. See the aguirc.example file for examples. The levels can be
+enabled and disabled during program operation from the view menu -
+the resource files only affect the startup defaults.
+
+* Upgrading from an earlier version
+
+This is the first publically available verison. If you have an earlier version, 
+please contact the author for version specific instructions.
+
+In general, the gws file format is intended to be backwards compatible so that old 
+work sheets can be opened with the new program version.
+
+Program updates will require updating one or more of the installed
+files.  If the modulde files where copied rather than linked from the
+installation directory, take note of this in order to avoid version
+conflicts.
+
+
